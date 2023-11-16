@@ -1,2 +1,3 @@
 # magazinDjango
 # magazinDjango
+# magazinDjango
