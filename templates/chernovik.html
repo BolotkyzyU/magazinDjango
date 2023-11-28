@@ -1,0 +1,7 @@
+{% for row in rows %}
+    <h3>{{ row.title }}</h3>
+    <video width="320" heigth="240" controls>
+        <source src="{{row.video_file.url}}" type="video/mp4">
+        Видео не поддерживается    
+    </video>
+{% endfor %}

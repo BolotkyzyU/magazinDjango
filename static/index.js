@@ -69,3 +69,5 @@ function setShoppingCart(url, isProductDetails = false){
             'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value, // Получаем CSRF-токен
         }}) 
 }
+
+

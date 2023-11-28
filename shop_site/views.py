@@ -22,7 +22,12 @@ class Index(TemplateView):
             category[index].products = products
 
         context['category'] = category
-
+        context['reviews'] = Reviews.objects.all()
+        context['slider'] = SliderProducts.objects.all()
+        context['randomImages'] = Products.objects.order_by('?')[:10]
+        context['lastBlogs'] = Blogs.objects.order_by('-created_at')[:3]
+        context['video'] = MainVideo.objects.all().order_by('?')[0]
+        # context[video] = MainVideo.objects.all()[:1]
 
         return context
 
@@ -41,6 +46,14 @@ def about(request):
         'reviews':reviews,
     }
     return render(request, "about.html", context)
+
+# еще один способ передача контексту
+# def about(request):
+#     context = {}
+#     context['workers'] = Workers.objects.all()
+#     context['reviews'] = Reviews.objects.all()[:8]
+
+#     return render(request, 'about.html', context)
 
 def blogs(request):
     rows = Blogs.objects.all()
@@ -213,14 +226,33 @@ def setShoppingCart(request, id):
     quantity = 1
     if request.GET.get('quantity'):
         quantity = int(request.GET.get('quantity'))
+
+    
+
+
     isAdded = ShoppingCart.objects.filter(productObject = row, author = user).exists()
     if isAdded:
         cartProduct = ShoppingCart.objects.get(productObject = row, author = user)
-        cartProduct.quantity += 1
-        cartProduct.save()
+        if request.GET.get('isMinus'):
+            cartProduct.quantity -= 1
+        else:
+            cartProduct.quantity += 1
+
+        if cartProduct.quantity <= 0:
+            cartProduct.delete()
+        else:
+            cartProduct.save()
     else:
         ShoppingCart.objects.create(productObject = row, author = user, quantity = quantity)
-    return HttpResponse("Продукт добавлен", status = 200)
+    
+    user = request.user
+    rows = ShoppingCart.objects.filter(author=user)
+    totalPrice = 0
+    for row in rows:
+        totalPrice += row.quantity * row.productObject.price
+
+    return JsonResponse({'totalPrice':totalPrice})
+
 
 def shoppingCart(request):
     if not(request.user.is_authenticated):
@@ -232,9 +264,52 @@ def shoppingCart(request):
     for row in rows:
         totalPrice += row.quantity * row.productObject.price
 
+    newProducts = Products.objects.all().order_by('-created_at')[:5]
+
     context = {
         'rows':rows,
-        'totalPrice':totalPrice
+        'totalPrice':totalPrice,
+        'newProducts':newProducts
     }
     return render(request, 'cart.html', context)
+
+
+def deleteShoppingCart(request, id):
+    row = ShoppingCart.objects.get(id = id)
+    row.delete()
+    return HttpResponse("Продукт удален из корзины", status = 200)  
+
+
+
+def video(request):
+    rows = MainVideo.objects.all()
+    context = {
+        'rows' : rows,
+    }
+    return render(request, 'video.html', context)
+
+
+import requests
+
+def video(request):
+    rows = MainVideo.objects.all()
+
+    # pip install requests
+    city = 'Osh'  # Или другой город
+    api_key = 'a745c6cdd20fa1e6f3226942e1120168'
+    api_url = f'http://api.weatherstack.com/current?access_key={api_key}&query={city}'
+
+    response = requests.get(api_url) # получение данных из api 
+    weather_data = response.json() 
+
+
+    context = {
+        'rows':rows, # видео
+
+        # для погоды
+        'city': city,
+        'temperature': weather_data['current']['temperature'],
+        'description': weather_data['current']['weather_descriptions'][0],
+    }
+    return render(request, 'video.html', context)
 

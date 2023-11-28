@@ -177,3 +177,24 @@ class ShoppingCart(models.Model):
     )
     productObject = models.ForeignKey(Products, on_delete=models.CASCADE)
     quantity = models.IntegerField()
+
+    class Meta:
+        verbose_name = "Корзинка"
+        verbose_name_plural = "Корзинки"
+
+class SliderProducts(models.Model):
+    productobject = models.ForeignKey(Products, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Карусель"
+        verbose_name_plural = "Карусельки"
+
+
+class MainVideo(models.Model):
+    title = models.CharField(max_length=255)
+    video_file = models.FileField(upload_to='videos/')
+    video_image = models.ImageField(upload_to='videosImages/')
+
+    class Meta:
+        verbose_name = "Видео"
+        verbose_name_plural = "Видео"

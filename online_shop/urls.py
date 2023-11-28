@@ -35,9 +35,10 @@ urlpatterns =[
     path('pressLike/<int:id>', pressLike, name="pressLike"),
     path('setRating/', setRating, name="setRating"),
     path('getRating/<int:id>', getRating, name='getRating'),
-    # path('cart/', cart, name='cart'),
     path('setShoppingCart/<int:id>', setShoppingCart, name='setShoppingCart'),
     path('shoppingCart/', shoppingCart, name='shoppingCart'),
+    path('deleteShoppingCart/<int:id>', deleteShoppingCart, name='deleteShoppingCart'),
+    path('video/', video, name='video'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
